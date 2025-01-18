@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<head><title> Song List  </title>
+<style>
+#songList {list-style-type: none;
+padding:0}
+li  {margin-bottom: 5px;}
+</style>
+</head>
+<body>
+<input type="text" id="newSong" placeholder="Enter song title">
+<button onClick="addSong()"> Add Song </button>
+<h2>List of songs  </h2>
+<ul id="songList"></ul>
+</body>
+</html>
