@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guessing Game v5</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      transition: background-color 3s ease;
+    }
+
+    .win-theme {
+      background-color: lightgreen;
+      color: darkgreen;
+    }
+
+    .lose-theme {
+      background-color: darkred;
+      color: white;
+    }
+
+    .tie-theme {
+      background-color: lightblue;
+      color: darkblue;
+    }
+
+    /* Flexbox Layout */
+    #mainContainer {
+      display: flex;
+      flex: 1;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    #gameContainer {
+      flex: 2;
+      max-width: 600px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      background: #f9f9f9;
+    }
+
+    #gameMasterContainer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden; /* Initially hidden */
+      opacity: 0; /* Fully transparent */
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #gameMasterContainer img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    form input, form button {
+      padding: 10px;
+      margin-bottom: 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .result {
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 10px;
+      background: #333;
+      color: white;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 style="text-align: center;">Game Master: Guessing Game</h1>
+  </header>
+
+  <div id="mainContainer">
+    <!-- Game Area -->
+    <div id="gameContainer">
+      <h2>Let's Play!</h2>
+      <div id="formContainer">
+        <form id="userForm">
+          <label for="name">Enter your name:</label>
+          <input type="text" id="name" name="name" required>
+
+          <label for="age">Enter your age:</label>
+          <input type="number" id="age" name="age" min="1" required>
+
+          <button type="submit">Start Game</button>
+        </form>
+
+        <form id="guessForm" style="display: none;">
+          <label for="userGuess">Enter your guess (1-100):</label>
+          <input type="number" id="userGuess" name="userGuess" min="1" max="100" required>
+
+          <button type="submit">Submit Guess</button>
+        </form>
+      </div>
+
+      <div id="gameOutput" class="result"></div>
+    </div>
+
+    <!-- Game Master Image -->
+    <div id="gameMasterContainer">
+      <img src="game_master.jpg" alt="Game Master">
+      <p style="text-align: center;">Your Game Master</p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Guessing Game Inc.
+  </footer>
+
+  <script>
+    // State variables
+    let user = {};
+    const targetNumber = 50; // Winning number is always closest to 50
+
+    // DOM Elements
+    const userForm = document.getElementById("userForm");
+    const guessForm = document.getElementById("guessForm");
+    const gameOutput = document.getElementById("gameOutput");
+    const gameMasterContainer = document.getElementById("gameMasterContainer");
+
+    // Start Game: Handle user form submission
+    userForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      // Capture user input
+      const name = document.getElementById("name").value.trim();
+      const age = parseInt(document.getElementById("age").value.trim());
+
+      if (age < 18) {
+        gameOutput.textContent = "Sorry, you're too young to play this game!";
+        gameOutput.style.color = "red";
+        return;
+      }
+
+      // Store user information
+      user = { name, age };
+
+      // Display game instructions
+      gameOutput.textContent = `Welcome, ${name}! Let's play a game. Guess a number between 1 and 100. The number closest to ${targetNumber} wins!`;
+      gameOutput.style.color = "black";
+
+      // Show the Game Master
+      gameMasterContainer.style.visibility = "visible";
+      gameMasterContainer.style.opacity = "1";
+
+      // Hide user form and show guess form
+      userForm.style.display = "none";
+      guessForm.style.display = "block";
+    });
+
+    // Handle guess form submission
+    guessForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      // Get user guess
+      const userGuess = parseInt(document.getElementById("userGuess").value.trim());
+
+      if (userGuess < 1 || userGuess > 100 || isNaN(userGuess)) {
+        gameOutput.textContent = "Please enter a valid number between 1 and 100.";
+        gameOutput.style.color = "red";
+        return;
+      }
+
+      // Generate a random number for the Game Master
+      const gameMasterGuess = Math.floor(Math.random() * 100) + 1;
+
+      // Determine the winner
+      const userDiff = Math.abs(targetNumber - userGuess);
+      const gameMasterDiff = Math.abs(targetNumber - gameMasterGuess);
+
+      let resultMessage = `Your guess: ${userGuess} (Off by ${userDiff})\nGame Master's guess: ${gameMasterGuess} (Off by ${gameMasterDiff}).\n`;
+
+      // Display results and update theme
+      document.body.className = ""; // Reset themes
+      if (userDiff < gameMasterDiff) {
+        resultMessage += `Congratulations, ${user.name}! You win! 🎉`;
+        document.body.classList.add("win-theme");
+      } else if (gameMasterDiff < userDiff) {
+        resultMessage += `Sorry, ${user.name}. The Game Master wins. 😔`;
+        document.body.classList.add("lose-theme");
+      } else {
+        resultMessage += `It's a tie! 🤝`;
+        document.body.classList.add("tie-theme");
+      }
+
+      gameOutput.textContent = resultMessage;
+
+      // Hide Game Master and reset the game forms
+      gameMasterContainer.style.visibility = "hidden";
+      gameMasterContainer.style.opacity = "0";
+      userForm.style.display = "block";
+      guessForm.style.display = "none";
+      userForm.reset();
+      guessForm.reset();
+    });
+  </script>
+</body>
+</html>
